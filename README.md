@@ -15,15 +15,22 @@
 
 
 ## initialize the Database
+```
 $ flask --app housing init-db
+```
+
 
 ## update the Database (scrape data first then update the DB)
+```
 $ cd ./housing/utils/
 $ python <some-crawler.py>
 $ flask --app housing update-db-monthly
+```
 
 ## run the app (go to http://localhost:5000)
+```
 $ flask --app housing --debug run
+```
 
 Reference:
 The fUll tutorial to create a flask app: https://flask.palletsprojects.com/en/2.2.x/tutorial/
