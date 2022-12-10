@@ -14,15 +14,15 @@
 ![Seattle](markdown_images/Seattle.png)
 
 
-# initialize the Database
+## initialize the Database
 $ flask --app housing init-db
 
-# update the Database (crawl data first then update the DB)
+## update the Database (scrape data first then update the DB)
 $ cd ./housing/utils/
 $ python <some-crawler.py>
 $ flask --app housing update-db-monthly
 
-# run the app (go to http://localhost:5000)
+## run the app (go to http://localhost:5000)
 $ flask --app housing --debug run
 
 Reference:
