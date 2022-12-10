@@ -1,7 +1,7 @@
 # Simple Housing Price Monitor app
 
 # Intro
-- This app monitors monthly house price changes. Since it depends on scrapped house price, scraping
+- This app shows housing price heatmap by location, it also monitors monthly house price changes. Since it depends on scrapped house price, scraping
   would be done manually to prevent website blocking. To automate this part, an ideal solution would be using Cron Job.
   After monthly scraping, do the following command to sync database and the app will show the updates right after.
 - For data security purpose, I remove the scraping part from the git repo.
