@@ -16,11 +16,9 @@
 # initialize the Database
 $ flask --app housing init-db
 
-# update the Database
-# crawl data first then update the DB
-
+# update the Database (crawl data first then update the DB)
 $ cd ./housing/utils/
-$ python zillow.py
+$ python <some-crawler.py>
 $ flask --app housing update-db-monthly
 
 # run the app
