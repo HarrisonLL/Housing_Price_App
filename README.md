@@ -1,4 +1,4 @@
-# Simple House Price Monitor app
+# Simple Housing Price Monitor app
 
 # Intro
 - This app monitors monthly house price changes. Since it depends on scrapped house price, scraping
