@@ -22,7 +22,7 @@ $ cd ./housing/utils/
 $ python <some-crawler.py>
 $ flask --app housing update-db-monthly
 
-# run the app
+# run the app (go to http://localhost:5000)
 $ flask --app housing --debug run
 
 Reference:
