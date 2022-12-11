@@ -3,4 +3,3 @@ pandas
 numpy
 flask
 plotly
-requests
