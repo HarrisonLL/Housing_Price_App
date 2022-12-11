@@ -13,6 +13,11 @@
 ![Princeton](markdown_images/Princeton.png)
 ![Seattle](markdown_images/Seattle.png)
 
+# To Run
+## access token
+You need Google Map API token and Plotly token.
+please visit the website to create a token
+
 ## create a conda env and activate it
 ```
 $ conda create -n housing python=3.8
