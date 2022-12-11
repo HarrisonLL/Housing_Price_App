@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import glob
+import logging
 
 def get_census_data(file_path):
     csv_files = glob.glob(file_path + '/*.csv')
@@ -27,7 +28,7 @@ def get_census_data(file_path):
 
 def get_layout_from_db(cursor, landmark_type, cities):
     if len(cities) not in {1, 3}:
-        assert 'Numbers of cities passed is not correct'
+        logging.exception('Numbers of cities passed is not correct')
         return
     if len(cities) == 1:
         query = cursor.execute(
@@ -55,7 +56,7 @@ def get_layout_from_db(cursor, landmark_type, cities):
 
 def get_housing_from_db(cursor, cities, month):
     if len(cities) not in {1, 3}:
-        assert 'Numbers of cities passed is not correct'
+        logging.exception('Numbers of cities passed is not correct')
         return
     if len(cities) == 1:
         query = cursor.execute(
@@ -90,7 +91,7 @@ return summary stats after grouping and price list
 '''
 def analysis_query(cursor, cities, month):
     if len(cities) not in {1, 3}:
-        assert 'Numbers of cities passed is not correct'
+        logging.exception('Numbers of cities passed is not correct')
         return
     if len(cities) == 1:
         query = cursor.execute(
@@ -132,7 +133,7 @@ then use IQR (Inter Quartile Range) to remove outliers
 '''
 def get_monthly_price(cursor, cities, end_month, remove_outliers=True):
     if len(cities) not in {1, 3}:
-        assert 'Numbers of cities passed is not correct'
+        logging.exception('Numbers of cities passed is not correct')
         return
     if len(cities) == 1:
         query = cursor.execute(
