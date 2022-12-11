@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, Blueprint
 from housing.db import get_db
 import pandas as pd
-import Geohash as gh
 import numpy as np
 import json
 from housing.queries import get_layout_from_db, get_housing_from_db, analysis_query, get_census_data, get_monthly_price

@@ -1,0 +1,6 @@
+./instance
+./housing/__pycache__
+./housing/access_token
+./housing/utils/__pycache__
+./housing/utils/crawled_data
+./housing/utils/zillow.py

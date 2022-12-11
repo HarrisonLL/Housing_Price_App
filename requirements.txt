@@ -1,0 +1,6 @@
+click
+pandas
+numpy
+flask
+plotly
+requests

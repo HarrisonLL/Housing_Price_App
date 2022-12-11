@@ -9,6 +9,7 @@ from datetime import date
 from flask import current_app, g
 from housing.utils.gmap import fetch_gmap_data
 from housing.utils.zillow import zillow_request
+import logging
 
 
 def get_db():
@@ -39,13 +40,13 @@ def init_db():
     with open('./housing/access_token/gmap.txt') as f:
         gmap_token = f.read()
 
-    print('========= Initializing tables and city data =========')
+    logging.critical('========= Initializing tables and city data =========')
     with current_app.open_resource('./sql/schema.sql') as f:
         db.executescript(f.read().decode('utf8'))
     with current_app.open_resource('./sql/initial_data.sql') as f:
         db.executescript(f.read().decode('utf8'))
 
-    print('========= Starting API call to get layout data =========')
+    logging.critical('========= Starting API call to get layout data =========')
     response = dict()
     for city, location in citiesLoc.items():
         for layout in layout_types:
@@ -53,7 +54,7 @@ def init_db():
                 continue
             response = fetch_gmap_data(layout, location, response, gmap_token, city)
 
-    print('========= API call was done, storing data to DB =========')
+    logging.critical('========= API call was done, storing data to DB =========')
     for k,v in response.items():
         db.execute(
             """
@@ -65,15 +66,28 @@ def init_db():
     db.commit()
 
 
-def update_db_monthly():
-    db = get_db()
-    today = date.today()
-    month = today.strftime("%Y-%m")
+def update_db_monthly(month):
     data_dir = os.path.join('./housing/utils/crawled_data', month)
     if not os.path.exists(data_dir):
-        print('Data folder does not exits. Please start crawling first.')
+        msg = 'Data folder does not exits. Please create a directory and start crawling first \n'
+        msg += 'Directory Tree \n'
+        msg += './housing/utils/crawled_data/<some-crawler>.py \n'
+        msg += './housing/utils/crawled_data/2022-11/<data>.csv \n'
+        msg += './housing/utils/crawled_data/2022-12/<data>.csv \n'
+        msg += '...'
+        logging.exception(msg)
         return
-    
+
+    db = get_db()
+    result = db.execute("""
+    select * from city_housing where crawled_date = ?
+    """, (month, ))
+    record_cnt = 0
+    for record in result: record_cnt += 1
+    if record_cnt > 0:
+        logging.exception('Entered month data already added')
+        return
+
     city2idx = {'princeton': 1, 'west-windsor-township-nj': 2, 
             'lawrence-township-nj': 3, 'seattle': 4, 'nyc':5}
     columns = ['crawled_month','addressStreet', 'unformattedPrice', 'area', 'baths','beds', 'days', 'detailUrl', 'lat', 'lng']
@@ -94,8 +108,8 @@ def update_db_monthly():
         df['days'] = days
         df = df[columns]
         records = df.to_numpy()
-        print('========= Start sync DB for city: {} ========='.format(city_name))
-        print('{} records crawled'.format(df.shape[0]))
+        logging.critical('========= Start sync DB for city: {} ========='.format(city_name))
+        logging.critical('{} records crawled'.format(df.shape[0]))
         for record in records:
             db.execute(
             """
@@ -103,7 +117,7 @@ def update_db_monthly():
             VALUES
             (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (record[0], record[1], record[2], record[3], record[4], record[5], record[6], record[7], record[8], record[9], city_idx))
-        print('========= DB sync is done for city: {} ========='.format(city_name))
+        logging.critical('========= DB sync is done for city: {} ========='.format(city_name))
     db.commit()
 
 
@@ -115,8 +129,9 @@ def init_db_command():
     click.echo('Initialized the database.')
 
 @click.command('update-db-monthly')
-def update_db_monthly_command():
-    update_db_monthly()
+@click.argument('month')
+def update_db_monthly_command(month):
+    update_db_monthly(month)
     click.echo('Updated the database.')
 
 
