@@ -15,10 +15,10 @@
 
 # To Run
 ## access token
-You need Google Map API token and Plotly token.
-Please visit the website to create a token.
-Then put the token string in this directory: 
-google map api token: ./housing/access_token/gmap.txt
+You need Google Map API token and Plotly token. \
+Please visit the website to create a token. \
+Then put the token string in this directory: \
+google map api token: ./housing/access_token/gmap.txt \
 plotly api token: ./housing/access_token/gmap.txt
 
 ## create a conda env and activate it
