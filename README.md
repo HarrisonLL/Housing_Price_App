@@ -21,6 +21,11 @@ Then put the token string in this directory: \
 google map api token: ./housing/access_token/gmap.txt \
 plotly api token: ./housing/access_token/mapbox.txt
 
+## create a customized crawler
+Create a housing price python crawler and then put it in this directory: \
+./housing/utils/crawled_data/<some-crawler>.py
+
+
 ## create a conda env and activate it
 ```
 $ conda create -n housing python=3.8
