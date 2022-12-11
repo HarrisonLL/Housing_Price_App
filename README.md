@@ -15,9 +15,9 @@
 
 ## create a conda env and activate it
 ```
-conda create -n housing python=3.8
-conda activate housing
-pip install -r requirements.txt
+$ conda create -n housing python=3.8
+$ conda activate housing
+$ pip install -r requirements.txt
 ```
 
 ## initialize the Database
