@@ -30,7 +30,7 @@ $ flask --app housing init-db
 ```
 $ cd ./housing/utils/
 $ python <some-crawler.py>
-$ flask --app housing update-db-monthly
+$ flask --app housing update-db-monthly <month in the format of year-month>
 ```
 
 ## run the app (go to http://localhost:5000)
