@@ -139,14 +139,14 @@ def get_monthly_price(cursor, cities, end_month, remove_outliers=True):
         query = cursor.execute(
             """
             select crawled_date, price from city_housing join city on city_housing.city_id = city.id
-            where city.city_name = ? and crawled_date <= ? and num_bathroom in (2) and num_bedroom in (2,3)
+            where city.city_name = ? and crawled_date <= ?
             """, (cities[0], end_month, )
         ).fetchall()
     else:
         query = cursor.execute(
             """
             select crawled_date, price from city_housing join city on city_housing.city_id = city.id
-            where city.city_name in (?, ?, ?) and crawled_date <= ? and num_bathroom in (2) and num_bedroom in (2,3)
+            where city.city_name in (?, ?, ?) and crawled_date <= ?
             """, (cities[0], cities[1], cities[2], end_month, )
         ).fetchall()
     
@@ -168,4 +168,11 @@ def get_monthly_price(cursor, cities, end_month, remove_outliers=True):
         res.drop(upper[0], inplace = True)
         res.drop(lower[0], inplace = True)
 
+    return res
+
+
+def digit_to_dollar_string(lst):
+    res = []
+    for i in range(len(lst)):
+        res.append("${:,}".format(int(lst[i])))
     return res

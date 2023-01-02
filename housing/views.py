@@ -3,7 +3,8 @@ from housing.db import get_db
 import pandas as pd
 import numpy as np
 import json
-from housing.queries import get_layout_from_db, get_housing_from_db, analysis_query, get_census_data, get_monthly_price
+from housing.queries import get_layout_from_db, get_housing_from_db, analysis_query, get_census_data, get_monthly_price, digit_to_dollar_string
+from housing.ml_models import run_KMeans
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.utils as pu
@@ -20,14 +21,16 @@ month = today.strftime("%Y-%m")
 @views.route('/', defaults={'location': 'princeton'})
 @views.route('/<location>', methods=['POST', 'GET'])
 def city_map(location):
-    #grouping_type = request.args.get("groupingType", "price")
+    city_name =  []
+    city_coords = tuple()
+
     if location == 'nyc':
         city_name = ['NYC,NY']
         city_coords = (40.7128, -74.0060)
-    if location == 'seattle':
+    elif location == 'seattle':
         city_name = ['Seattle,WA']
         city_coords = (47.6062, -122.3321)
-    if location == 'princeton':
+    elif location == 'princeton':
         city_name = ['Princeton,NJ', 'West Windsor,NJ', 'Lawrence,NJ']
         city_coords = (40.3573, -74.6672)
 
@@ -36,13 +39,13 @@ def city_map(location):
     urls, lons, lats, price = get_housing_from_db(cursor, city_name, month)
     hovertemplate = 'Price: %{z} <br> More Info on: <a href="%{customdata}">Zillow Link</a>'
     fig = go.Figure(go.Densitymapbox(lat=lats, 
-                                     lon=lons, 
-                                     z=price, 
-                                     customdata=urls,
-                                     hovertemplate=hovertemplate,
-                                     radius=30, 
-                                     opacity=1))
-    
+                                    lon=lons, 
+                                    z=price, 
+                                    customdata=urls,
+                                    hovertemplate=hovertemplate,
+                                    radius=30, 
+                                    opacity=1))
+
     fig.update_layout(mapbox = {
         'accesstoken': plotly_go_token,
         },
@@ -129,6 +132,71 @@ def city_map(location):
 
     return render_template('map.html', graphJSON=[graphJSON, graphJSON2], tables=[summarize.to_html(classes='data', header="true")])
 
+
+
+@views.route('/<location>/graph', methods=['POST', 'GET'])
+def rerender_graph(location):
+    graphing_type = request.form.get('graphing')
+    if location == 'nyc':
+        city_name = ['NYC,NY']
+        city_coords = (40.7128, -74.0060)
+    elif location == 'seattle':
+        city_name = ['Seattle,WA']
+        city_coords = (47.6062, -122.3321)
+    elif location == 'princeton':
+        city_name = ['Princeton,NJ', 'West Windsor,NJ', 'Lawrence,NJ']
+        city_coords = (40.3573, -74.6672)
+    
+    cursor = get_db()
+    urls, lons, lats, price = get_housing_from_db(cursor, city_name, month)
+    if graphing_type == "heatmap":
+        hovertemplate = 'Price: %{z} <br> More Info on: <a href="%{customdata}">Zillow Link</a>'
+        fig = go.Figure(go.Densitymapbox(lat=lats, 
+                                        lon=lons, 
+                                        z=price, 
+                                        customdata=urls,
+                                        hovertemplate=hovertemplate,
+                                        radius=30, 
+                                        opacity=1))
+    elif graphing_type == "scatter":
+        fig = go.Figure(px.scatter_mapbox(lat=lats, 
+                        lon=lons,
+                        color=price,
+                        size=price,
+                        opacity=0.6,
+                        custom_data=[digit_to_dollar_string(price), urls]
+                        ))
+        fig.update_traces(
+            hovertemplate="<br>".join([
+                "Price: %{customdata[0]}",
+                'URL: More Info on: <a href="%{customdata[1]}">Zillow Link</a>',
+            ])
+        )
+    elif graphing_type == "clustering":
+        kmeans_result = run_KMeans(lats, lons, price, urls)
+        fig = go.Figure(px.scatter_mapbox(lat=kmeans_result["lats"], 
+                                lon=kmeans_result["lngs"], 
+                                color=kmeans_result["medium_prices"],
+                                custom_data=[digit_to_dollar_string(kmeans_result["price"]), digit_to_dollar_string(kmeans_result["medium_prices"]), kmeans_result["urls"]]
+                        ))
+        fig.update_traces(
+            hovertemplate="<br>".join([
+                "Price: %{customdata[0]}",
+                "Cluster Medium Price: %{customdata[1]}",
+                'URL: More Info on: <a href="%{customdata[2]}">Zillow Link</a>',
+            ])
+        )
+    fig.update_layout(mapbox = {
+        'accesstoken': plotly_go_token,
+        },
+        mapbox_style="outdoors",
+        mapbox_zoom=11,
+        mapbox_center_lat=city_coords[0],
+        mapbox_center_lon=city_coords[1],
+        height=800, width=1000,
+    )
+    graphJSON = json.dumps(fig, cls=pu.PlotlyJSONEncoder)
+    return graphJSON
 
 @views.route('/city-stats', methods=['POST', 'GET'])
 def city_stats():
