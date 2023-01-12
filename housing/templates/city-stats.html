@@ -1,13 +1,16 @@
 <!doctype html>
 <html>
+  <head>
+    <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}" />
+  </head>
  <body style="background-color:lightgray">
   <h1 style="padding-top:50px;padding-left:20px;padding-bottom:0;">City Comparison</h1>
   
-  <nav style="background-color: #333;position: fixed;top: 0;width: 100%;">	
-    <a href="/princeton" style="float: left;display: block;color: #f2f2f2;text-align: center;padding: 14px 16px;text-decoration: none;font-size: 17px;">Princeton,NJ</a></li>	
-    <a href="/seattle" style="float: left;display: block;color: #f2f2f2;text-align: center;padding: 14px 16px;text-decoration: none;font-size: 17px;">Seattle,WA</a></li>	
-    <a href="/nyc" style="float: left;display: block;color: #f2f2f2;text-align: center;padding: 14px 16px;text-decoration: none;font-size: 17px;">NYC</a></li>	
-    <a href="/city-stats" style="float: left;display: block;color: #f2f2f2;text-align: center;padding: 14px 16px;text-decoration: none;font-size: 17px;">City Stats</a></li>	
+  <nav class="navigation">
+    <a href="/princeton" class="navigationText">Princeton,NJ</a></li>	
+    <a href="/seattle" class="navigationText">Seattle,WA</a></li>	
+    <a href="/nyc" class="navigationText">NYC</a></li>	
+    <a href="/city-stats"class="navigationText">City Stats</a></li>	
   </nav>
 
 

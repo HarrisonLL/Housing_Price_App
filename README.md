@@ -8,10 +8,17 @@
 - The app is intended for individual user to have an insight of their local housing price to make wise investment decisions, not intended for business use whatsoever. Therefore, I do not add user log in functionalities.
 - Current supported City: Princeton, NJ. NYC,NJ, Seattle,WA
 
+# Features
+- currently support multiple Map types: 
+  1. heatmap to see overview price map
+  2. scatter plot to see individual price
+  3. clustering to see which area has higher or lower price (use Kmeans algorithm)
+- user can customize price stats by click on setting icon
 
-![NYC](markdown_images/NYC.png)
-![Princeton](markdown_images/Princeton.png)
-![Seattle](markdown_images/Seattle.png)
+![Seattle](markdown_images/Seattle_heatmap.png)
+![Seattle](markdown_images/Seattle_clustering.png)
+![Seattle](markdown_images/Seattle_scatter.png)
+![Seattle](markdown_images/Seattle_customize.png)
 
 # To Run
 ## access token

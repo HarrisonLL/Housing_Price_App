@@ -4,26 +4,49 @@
   <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}" />
 </head>
  <body style="background-color:#B1B1B1">
-  <h1 style="padding-top:50px;padding-left:20px;padding-bottom:0;"> House Price Monitoring (For Sale)</h1>
   
-  <nav class="navigation">	
+  <nav class="navigation">
+
     <a href="/princeton" class="navigationText">Princeton,NJ</a></li>	
     <a href="/seattle" class="navigationText">Seattle,WA</a></li>	
     <a href="/nyc" class="navigationText">NYC</a></li>	
     <a href="/city-stats"class="navigationText">City Stats</a></li>	
-  </nav>
+
+    
+    <img src="{{ url_for('static',filename='styles/button.png') }}" width="30" height="30" type="button" class="collapsible"/>
+    <div class="content">
+      <span class="customizeSettings"> Perference </span>
+      <form method="POST"  id="setting-form" style="position: relative;">
+        <span >Bedroom Range: <span style="margin-left: 15px;">From   <input size="5" name="bedroomFrom"/> To <input size="5" name="bedroomTo"/> </span></span>
+        <br/>
+        <span >Bathroom Range:<span style="margin-left: 10px;"></span> From  <input size="5" name="bathroomFrom"/> To <input size="5" name="bathroomTo"/> </span></span>
+        <br/>
+        <span >Maximun Posted Days: <span style="margin-left: 12px;"><input size="5" name="maxPostedDays"/> </span></span>
+        <br/>
+        <span >Aggregated By: </span>
+        <select name="aggregatedType">
+          <option value="price" selected>Price</option>
+          <option value="unitPrice" >Unit Price</option>
+        </select>
+        <br/><br/>
+        <button id="setting-button">Submit</button>
+      </form>
+    </div>
   
+  </nav>
+
+  <h1 style="padding-top:50px;padding-left:20px;padding-bottom:0;"> House Price Monitoring (For Sale)</h1>
     <div>
       <form name="graphing" method="POST"  id="form" style="margin-left: 20px;">
         <div>
           Select Graph Type
         </div>
-        <select name="graphing" class="form-control">
+        <select name="graphing">
           <option value="heatmap" selected>Heatmap (Overview Viz)</option>
           <option value="scatter" >Scatter (Enhanced Viz on individual point)</option>
           <option value="clustering" >clustering (Clustering based on location and price)</option>
         </select>
-      <button class="form-control" id="button">Get Graph</button>
+      <button id="button">Get Graph</button>
       </form>
     </div>
   
@@ -60,7 +83,18 @@
 
   var graphs2 = {{graphJSON[1] | safe}};
   Plotly.plot('boxplot',graphs2,{});
-  console.log('location.pathname', ); 
+
+  
+  var coll = document.getElementsByClassName("collapsible");
+  coll[0].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var content = this.nextElementSibling;
+    if (content.style.display === "block") {
+      content.style.display = "none";
+    } else {
+      content.style.display = "block";
+    }
+  })
 
   $('#button').click( function(event) {
         let urlTo =  window.location.pathname === "/" ? "/princeton":window.location.pathname;
@@ -70,7 +104,16 @@
           var figure = JSON.parse(response);
           Plotly.newPlot('chart', figure.data, figure.layout);
         })
-    });    
+    });
+    
+  $('#setting-button').click( function(event) {
+      let urlTo =  window.location.pathname === "/" ? "/princeton":window.location.pathname;
+      urlTo += "/customize";
+      event.preventDefault();
+      $.post(urlTo, $('#setting-form').serialize(), function(response) {
+        location.reload();
+      })
+  }); 
 </script>
 
 </html>

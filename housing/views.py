@@ -5,6 +5,7 @@ import numpy as np
 import json
 from housing.queries import get_layout_from_db, get_housing_from_db, analysis_query, get_census_data, get_monthly_price, digit_to_dollar_string
 from housing.ml_models import run_KMeans
+from housing.perference import Perference
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.utils as pu
@@ -15,11 +16,22 @@ views = Blueprint('views', __name__)
 plotly_go_token = open('./housing/access_token/mapbox.txt').read()
 today = date.today()
 month = today.strftime("%Y-%m")
+perference = Perference()
 
+
+@views.route('/<location>/customize', methods=['POST'])
+def update_custom_settings(location):
+    perference.bedroom_from = request.form.get('bedroomFrom')
+    perference.bedroom_to = request.form.get('bedroomTo')
+    perference.bathroom_from = request.form.get('bathroomFrom')
+    perference.bathroom_to = request.form.get('bathroomTo')
+    perference.aggregated_type = request.form.get('aggregatedType')
+    perference.max_posted_days = request.form.get('maxPostedDays')
+    return city_map(location)
 
 
 @views.route('/', defaults={'location': 'princeton'})
-@views.route('/<location>', methods=['POST', 'GET'])
+@views.route('/<location>', methods=['GET'])
 def city_map(location):
     city_name =  []
     city_coords = tuple()
@@ -34,9 +46,29 @@ def city_map(location):
         city_name = ['Princeton,NJ', 'West Windsor,NJ', 'Lawrence,NJ']
         city_coords = (40.3573, -74.6672)
 
+    additional_args = {
+        "bedroom_from": perference.bedroom_from, 
+        "bedroom_to": perference.bedroom_to,
+        "bathroom_from": perference.bathroom_from,
+        "bathroom_to": perference.bathroom_to,
+        "aggregated_type": perference.aggregated_type,
+        "max_posted_days": perference.max_posted_days
+    }
+   
     cursor = get_db()
-    summarize = analysis_query(cursor, city_name, month)
-    urls, lons, lats, price = get_housing_from_db(cursor, city_name, month)
+    summarize = analysis_query(cursor, city_name, month, kwargs=additional_args)
+    month_prices = get_monthly_price(cursor, city_name, month, kwargs=additional_args)
+    urls, lons, lats, price = get_housing_from_db(cursor, city_name, month, kwargs=additional_args)
+    
+    # table and graph on the right
+    prices = month_prices['price']
+    months = month_prices['month']
+    fig_right = go.Figure()
+    fig_right.add_trace(go.Box(y=prices,x=months, boxpoints=False))
+    fig_right.update_layout(height=400, width=400)
+    graphJSON_right = json.dumps(fig_right, cls=pu.PlotlyJSONEncoder)
+
+    # graph on the left
     hovertemplate = 'Price: %{z} <br> More Info on: <a href="%{customdata}">Zillow Link</a>'
     fig = go.Figure(go.Densitymapbox(lat=lats, 
                                     lon=lons, 
@@ -121,20 +153,13 @@ def city_map(location):
                 showlegend=True
             ))
     
-    graphJSON = json.dumps(fig, cls=pu.PlotlyJSONEncoder)
-    
-    month_prices = get_monthly_price(cursor, city_name, month)
-    prices = month_prices['price']
-    months = month_prices['month']
-    fig2 = go.Figure()
-    fig2.add_trace(go.Box(y=prices,x=months, boxpoints=False))
-    graphJSON2 = json.dumps(fig2, cls=pu.PlotlyJSONEncoder)
+    graphJSON_left = json.dumps(fig, cls=pu.PlotlyJSONEncoder)
 
-    return render_template('map.html', graphJSON=[graphJSON, graphJSON2], tables=[summarize.to_html(classes='data', header="true")])
+    return render_template('map.html', graphJSON=[graphJSON_left, graphJSON_right], tables=[summarize.to_html(classes='data', header="true")])
 
 
 
-@views.route('/<location>/graph', methods=['POST', 'GET'])
+@views.route('/<location>/graph', methods=['POST'])
 def rerender_graph(location):
     graphing_type = request.form.get('graphing')
     if location == 'nyc':
@@ -147,8 +172,16 @@ def rerender_graph(location):
         city_name = ['Princeton,NJ', 'West Windsor,NJ', 'Lawrence,NJ']
         city_coords = (40.3573, -74.6672)
     
+    additional_args = {
+        "bedroom_from": perference.bedroom_from, 
+        "bedroom_to": perference.bedroom_to,
+        "bathroom_from": perference.bathroom_from,
+        "bathroom_to": perference.bathroom_to,
+        "aggregated_type": perference.aggregated_type,
+        "max_posted_days": perference.max_posted_days
+    }
     cursor = get_db()
-    urls, lons, lats, price = get_housing_from_db(cursor, city_name, month)
+    urls, lons, lats, price = get_housing_from_db(cursor, city_name, month, kwargs=additional_args)
     if graphing_type == "heatmap":
         hovertemplate = 'Price: %{z} <br> More Info on: <a href="%{customdata}">Zillow Link</a>'
         fig = go.Figure(go.Densitymapbox(lat=lats, 

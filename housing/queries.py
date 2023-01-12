@@ -26,6 +26,29 @@ def get_census_data(file_path):
     return dfs
 
 
+def query_add_kwargs(query, kwargs):
+    bedroom_from = kwargs.get('bedroom_from')
+    bedroom_to = kwargs.get('bedroom_to')
+    bathroom_from = kwargs.get('bathroom_from')
+    bathroom_to = kwargs.get('bathroom_to')
+    aggregated_type = kwargs.get('aggregated_type')
+    max_posted_days = kwargs.get('max_posted_days')
+    if bedroom_from:
+        query += " and num_bedroom >= {}".format(bedroom_from)
+    if bedroom_to:
+        query += " and num_bedroom <= {}".format(bedroom_to)
+    if bathroom_from:
+        query += " and num_bathroom >= {}".format(bathroom_from)
+    if bathroom_to:
+        query += " and num_bathroom <= {}".format(bathroom_to)
+    if max_posted_days:
+        query += " and num_days_posted <= {}".format(max_posted_days)
+    if aggregated_type and aggregated_type == "unitPrice":
+        query = query.replace("select price,", "select (price/area) as price,")
+        query += " and area > 0"
+    return query
+
+
 def get_layout_from_db(cursor, landmark_type, cities):
     if len(cities) not in {1, 3}:
         logging.exception('Numbers of cities passed is not correct')
@@ -33,14 +56,14 @@ def get_layout_from_db(cursor, landmark_type, cities):
     if len(cities) == 1:
         query = cursor.execute(
         """
-        select * from city_layout join city on city_layout.city_id = city.id
+        select landmark_lng,landmark_lat,landmark_name from city_layout join city on city_layout.city_id = city.id
         where landmark_type = ? and city.city_name = ?
         """, (landmark_type, cities[0])).fetchall()
 
     else:
         query = cursor.execute(
         """
-        select * from city_layout join city on city_layout.city_id = city.id
+        select landmark_lng,landmark_lat,landmark_name from city_layout join city on city_layout.city_id = city.id
         where landmark_type = ? and city.city_name in (?, ?, ?)
         """, (landmark_type, cities[0], cities[1], cities[2])).fetchall()
 
@@ -54,22 +77,26 @@ def get_layout_from_db(cursor, landmark_type, cities):
     return lons, lats, names
 
 
-def get_housing_from_db(cursor, cities, month):
+def get_housing_from_db(cursor, cities, month, kwargs={}):
     if len(cities) not in {1, 3}:
         logging.exception('Numbers of cities passed is not correct')
         return
+    
     if len(cities) == 1:
-        query = cursor.execute(
-            """
-            select zillow_url,house_lat,house_lng,price from city_housing join city on city_housing.city_id = city.id
-            where city.city_name = ? and crawled_date = ?
-            """, (cities[0], month, )).fetchall()
+        base_query = """
+                    select price,zillow_url,house_lat,house_lng from city_housing join city on city_housing.city_id = city.id
+                    where city.city_name = ? and crawled_date = ?
+                    """
+        base_query = query_add_kwargs(base_query, kwargs)
+        query = cursor.execute(base_query, (cities[0], month, )).fetchall()
+
     else:
-        query = cursor.execute(
-            """
-            select zillow_url,house_lat,house_lng,price from city_housing join city on city_housing.city_id = city.id
-            where city.city_name in (?, ?, ?) and crawled_date = ? 
-            """, (cities[0], cities[1], cities[2], month, )).fetchall()
+        base_query = """
+                    select price,zillow_url,house_lat,house_lng from city_housing join city on city_housing.city_id = city.id
+                    where city.city_name in (?, ?, ?) and crawled_date = ? 
+                    """
+        base_query = query_add_kwargs(base_query, kwargs)
+        query = cursor.execute(base_query, (cities[0], cities[1], cities[2], month, )).fetchall()
     
     urls = []
     lons = []
@@ -89,24 +116,25 @@ retrieve data from db
 use pandas to calculate min, max, medium
 return summary stats after grouping and price list
 '''
-def analysis_query(cursor, cities, month):
+def analysis_query(cursor, cities, month, kwargs={}):
     if len(cities) not in {1, 3}:
         logging.exception('Numbers of cities passed is not correct')
         return
+    
     if len(cities) == 1:
-        query = cursor.execute(
-            """
-            select num_bathroom, num_bedroom, price from city_housing join city on city_housing.city_id = city.id
-            where city.city_name = ? and crawled_date = ?
-            """, (cities[0], month, )
-        ).fetchall()
+        base_query = """
+                    select price,num_bathroom, num_bedroom from city_housing join city on city_housing.city_id = city.id
+                    where city.city_name = ? and crawled_date = ?
+                    """
+        base_query = query_add_kwargs(base_query, kwargs)
+        query = cursor.execute(base_query, (cities[0], month, )).fetchall()
     else:
-        query = cursor.execute(
-            """
-            select num_bathroom, num_bedroom, price from city_housing join city on city_housing.city_id = city.id
-            where city.city_name in (?,?,?) and crawled_date = ?
-            """, (cities[0], cities[1], cities[2], month)
-        ).fetchall()
+        base_query = """
+                    select price,num_bathroom, num_bedroom from city_housing join city on city_housing.city_id = city.id
+                    where city.city_name in (?,?,?) and crawled_date = ?
+                    """
+        base_query = query_add_kwargs(base_query, kwargs)
+        query = cursor.execute(base_query, (cities[0], cities[1], cities[2], month)).fetchall()
 
     df_data = {'Bathrooms': [], 'Bedrooms':[], 'price':[]}
     for record in query:
@@ -131,24 +159,25 @@ return monthly price data from DB
 If set remove_outliers to true,
 then use IQR (Inter Quartile Range) to remove outliers
 '''
-def get_monthly_price(cursor, cities, end_month, remove_outliers=True):
+def get_monthly_price(cursor, cities, end_month, kwargs={}, remove_outliers=True):
     if len(cities) not in {1, 3}:
         logging.exception('Numbers of cities passed is not correct')
         return
+    
     if len(cities) == 1:
-        query = cursor.execute(
-            """
-            select crawled_date, price from city_housing join city on city_housing.city_id = city.id
-            where city.city_name = ? and crawled_date <= ?
-            """, (cities[0], end_month, )
-        ).fetchall()
+        base_query = """
+                        select price,crawled_date from city_housing join city on city_housing.city_id = city.id
+                        where city.city_name = ? and crawled_date <= ?
+                    """
+        base_query = query_add_kwargs(base_query, kwargs)
+        query = cursor.execute(base_query, (cities[0], end_month, )).fetchall()
     else:
-        query = cursor.execute(
-            """
-            select crawled_date, price from city_housing join city on city_housing.city_id = city.id
-            where city.city_name in (?, ?, ?) and crawled_date <= ?
-            """, (cities[0], cities[1], cities[2], end_month, )
-        ).fetchall()
+        base_query = """
+                        select price,crawled_date from city_housing join city on city_housing.city_id = city.id
+                        where city.city_name in (?, ?, ?) and crawled_date <= ?
+                     """
+        base_query = query_add_kwargs(base_query, kwargs)
+        query = cursor.execute(base_query, (cities[0], cities[1], cities[2], end_month,)).fetchall()
     
     df_data = {'month': [], 'price':[]}
     for record in query:
