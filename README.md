@@ -12,12 +12,12 @@
 ![Design](markdown_images/System_design.png)
 
 # Features
-- currently support multiple Map types: 
+- Currently support multiple Map types: 
   1. heatmap to see overview price map
   2. scatter plot to see individual price
   3. clustering to see which area has higher or lower price (use Kmeans algorithm)
-- Nearby schools, stores, train station is also shown in the map using Google Map api
-- user can customize price stats by click on setting icon
+- Nearby schools, stores, train station, etc are also shown in the map using Google Map api
+- User can customize price stats by click on setting icon
 
 ![Seattle](markdown_images/Seattle_heatmap.png)
 ![Seattle](markdown_images/Seattle_clustering.png)
