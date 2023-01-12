@@ -6,7 +6,7 @@
   After monthly scraping, do the following command to sync database and the app will show the updates right after.
 - For data security purpose, I remove the scraping part from the git repo.
 - The app is intended for individual user to have an insight of their local housing price to make wise investment decisions, not intended for business use whatsoever. Therefore, I do not add user log in functionalities.
-- Current supported City: Princeton, NJ. NYC,NJ, Seattle,WA
+- Current supported City: 1. Princeton, NJ 2. NYC,NY 3. Seattle,WA
 
 # Features
 - currently support multiple Map types: 
