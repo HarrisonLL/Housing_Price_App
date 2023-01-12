@@ -9,7 +9,7 @@
 - Current supported City: 1. Princeton, NJ 2. NYC,NY 3. Seattle,WA
 
 # App Design
-![Seattle](markdown_images/System_design.png)
+![Design](markdown_images/System_design.png)
 
 # Features
 - currently support multiple Map types: 
