@@ -8,9 +8,6 @@
 - The app is intended for individual user to have an insight of their local housing price to make wise investment decisions, not intended for business use whatsoever. Therefore, I do not add user log in functionalities.
 - Current supported City: 1. Princeton, NJ 2. NYC,NY 3. Seattle,WA
 
-# App Design
-![Design](markdown_images/System_design.png)
-
 # Features
 - Currently support multiple Map types: 
   1. heatmap to see overview price map
