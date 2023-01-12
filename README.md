@@ -1,4 +1,4 @@
-# Simple Housing Price Monitor app
+# Simple Housing Price APP
 
 # Intro
 - This app shows housing price heatmap by location, it also monitors monthly house price changes. Since it depends on scrapped house price, scraping
