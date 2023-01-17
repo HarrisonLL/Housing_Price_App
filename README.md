@@ -8,14 +8,14 @@
 
 # Features
 - Right Side Map:
--- This map shows current month housing info \
--- Currently support multiple Map types: \
+a. This map shows current month housing info
+b. Currently support multiple Map types:
   1. heatmap to see overview price map
   2. scatter plot to see individual price
   3. clustering to see which area has higher or lower price (use Kmeans algorithm)
--- Nearby schools, stores, train station, etc are also shown in the map via Google Map api \
+c. Nearby schools, stores, train station, etc are also shown in the map via Google Map api
 - Left Side Boxplot and Table:
--- This boxplot shows price changes in all months. \
+a. This boxplot shows price changes in all months.
 - All data on dashboard is customizable. 
 
 ![Seattle](markdown_images/Seattle_heatmap.png)
