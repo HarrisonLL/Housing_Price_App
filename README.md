@@ -1,11 +1,9 @@
 # Simple Housing Price APP
 
 # Intro
-- This app shows housing price heatmap by location, it also monitors monthly house price changes. Since it depends on scrapped house price, scraping
-  would be done manually to prevent website blocking. To automate this part, an ideal solution would be using Cron Job.
-  After monthly scraping, do the following command to sync database and the app will show the updates right after.
+- This app shows housing price heatmap, scatter plot, clustering by location, it also monitors monthly house price changes. Since it depends on scrapped house price, scraping would be done manually to prevent website blocking. To automate this part, an ideal solution would be using Cron Job. For current version, after you scrape data each month, you need to do the following command to sync database and the app will show the updates right after.
 - For data security purpose, I remove the scraping part from the git repo.
-- The app is intended for individual user to have an insight of their local housing price to make wise investment decisions, not intended for business use whatsoever. Therefore, I do not add user log in functionalities.
+- The app is intended for individual user to have an insight of their local housing price to make wise investment decisions, not intended for any business use. Therefore, there's no user info stored.
 - Current supported City: 1. Princeton, NJ 2. NYC,NY 3. Seattle,WA
 
 # Features
@@ -60,4 +58,4 @@ $ flask --app housing --debug run
 ```
 
 Reference:
-The fUll tutorial to create a flask app: https://flask.palletsprojects.com/en/2.2.x/tutorial/
+The full tutorial to create a flask app: https://flask.palletsprojects.com/en/2.2.x/tutorial/
