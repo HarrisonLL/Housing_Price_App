@@ -14,7 +14,7 @@ b. Currently support multiple Map types: \
   2. scatter plot to see individual price
   3. clustering to see which area has higher or lower price (use Kmeans algorithm)
 c. Nearby schools, stores, train station, etc are also shown in the map via Google Map api \
-- Left Side Boxplot and Table:
+- Left Side Boxplot and Table: \
 a. This boxplot shows price changes in all months  \
 - All data on dashboard is customizable. 
 
