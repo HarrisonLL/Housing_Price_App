@@ -7,15 +7,15 @@
 - Current supported City: 1. Princeton, NJ 2. NYC,NY 3. Seattle,WA
 
 # Features
-- Right Side Map:
-a. This map shows current month housing info
-b. Currently support multiple Map types:
+- Right Side Map: \
+a. This map shows current month housing info \
+b. Currently support multiple Map types: \
   1. heatmap to see overview price map
   2. scatter plot to see individual price
   3. clustering to see which area has higher or lower price (use Kmeans algorithm)
-c. Nearby schools, stores, train station, etc are also shown in the map via Google Map api
+c. Nearby schools, stores, train station, etc are also shown in the map via Google Map api \
 - Left Side Boxplot and Table:
-a. This boxplot shows price changes in all months.
+a. This boxplot shows price changes in all months  \
 - All data on dashboard is customizable. 
 
 ![Seattle](markdown_images/Seattle_heatmap.png)
